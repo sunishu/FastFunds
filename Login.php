@@ -12,20 +12,28 @@ SESSION_start();
 
 if(!empty($_POST['username'])){
 	$name = $_POST['username'];
-	$sql = "SELECT * FROM users where username = '$name'";
-	$result = mysqli_query($conn, $sql);
-	$row = mysqli_fetch_array($result);
+	$sql = mysqli_query($conn, "SELECT * FROM users where username = '$name'");
+	$result = mysqli_fetch_array($sql);
 	
-	if(!empty($row['username'])){
-		$_SESSION['username'] = $row['username'];
-		$_SESSION['password'] = $_POST['password'];
-		header("Location: projects.php ");
-		exit;
+	if($result = $name){
+		$password = $_POST['password'];
+		$sql = mysqli_query($conn, "SELECT pwd FROM users where username = '$name'");
+		$result = mysqli_fetch_array($sql);
+
+		if($result = $password){
+			header("Location: action.php")
+
+		}else{
+			echo "incorrect password.";
+		}
+
 	}else{
-		echo "Incorrect username.";
+		echo "username incorrect."
 	}
+
+	
 }else{
-	echo "Please enter customer name.";
+	echo "Please enter username.";
 }
 
 $conn->close();
