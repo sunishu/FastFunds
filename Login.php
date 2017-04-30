@@ -19,7 +19,7 @@ if(!empty($_POST['username'])){
 	if(!empty($row['username'])){
 		$_SESSION['username'] = $row['username'];
 		$_SESSION['password'] = $_POST['password'];
-		header("Location: projects.php ");
+		header("Location: action.html ");
 		exit;
 	}else{
 		echo "Incorrect username.";
