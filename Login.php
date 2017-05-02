@@ -21,6 +21,7 @@ if(!empty($_POST['username'])){
 		$result = mysqli_fetch_array($sql);
 
 		if($result = $password){
+			$_SESSION[username] = $name;
 			header("Location: action.php")
 
 		}else{
