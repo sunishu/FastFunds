@@ -1,16 +1,15 @@
 <?php
-  include_once 'dbConnect.php';
-SESSION_start();
+ 	include_once 'dbConnect.php';
+	SESSION_start();
 
-$username=$_SESSION['username']; 
+	$username = $_SESSION['username'];
 
-
-  ?> 
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <title>Campaigns</title>
-  <meta charset="utf-8">
+	<title>Your campaigns!</title>
+	<meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -35,11 +34,10 @@ $username=$_SESSION['username'];
   </style>
 </head>
 <body>
-
 <div class="jumbotron">
   <div class="container text-center">
-    <h1>FastFunds</h1>      
-    <p>Contribute to the awesome campaigns!</p>
+    <h2>Update or view your projects!</h2>      
+    <p><b><font color=blue></font><?php echo htmlspecialchars($username); ?></font></b></p>
   </div>
 </div>
 
@@ -59,59 +57,22 @@ $username=$_SESSION['username'];
         <li><a href="allUsers.php">Users</a></li>
         <li><a href="userProjects.php">Your Projects</a></li>
         <li><a href="rateProjects.php">Rate Projects</a></li>
-        <li><form action="tag.php" method="POST"><select name="tag">
-            <option>--Tags--</option>
-            <?php
-
-               $sql = mysqli_query($conn, "SELECT distinct tag from Projects");
-
-              while($query = mysqli_fetch_array($sql)){
-
-                $tag = $query['tag'];
-
-            ?>
-
-        <option value = "<?php echo "$tag"; ?>"><a href="tag.php"><?php echo "$tag";?> </a></option>
-        <?php    
-          }
-
-        ?>
-        </select>
-        <input type="submit" value="submit"/>
-
-        </form>
-
-
-
-        </li>
-<?php 
-        
-        if(isset($_POST['submit'])){
-
-          $tag = $_POST['tag'];
-          echo "$tag";
-          $_SESSION['tag'] = $tag;
-  
-
-
-        }
-
-?>
         <li><a href="recommendations.php">Your Recommendations</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-      <form action="search.php" method="POST">
-          <li><input type="text" name="search" id="search" placeholder="search" required><a href="search.php"><span class="glyphicon glyphicon-search"></span>Search</a></li>
-        </form>
+
         <li>
+        
         <a href="logout.php"><span class="glyphicon glyphicon-user"></span>Logout</a></li>
       </ul>
     </div>
   </div>
 </nav>
 
+
 <?php
-$sql = mysqli_query($conn, "SELECT p.pid,p.pname, p.pdescription,m.mlink from Projects p Join multimedia m on p.pid =m.pid");
+
+$sql = mysqli_query($conn, "SELECT p.pid,p.pname, p.pdescription,m.mlink from Projects p Join multimedia m on p.pid =m.pid where username = '$username' ");
 
  while($query = mysqli_fetch_array($sql)){ ?> 
 <div class="container"> 
@@ -134,7 +95,7 @@ $sql = mysqli_query($conn, "SELECT p.pid,p.pname, p.pdescription,m.mlink from Pr
         <div class="panel-heading"><?php echo "$pname"; ?></div>
         <div class="panel-body">
 
-<form action="showProject.php" method='GET'>
+<form action="updateProject.php" method='GET'>
   <input type="image" src="<?php echo "$mlink"; ?>" name = "link" value = "<?php echo "$pid"; ?>" class="img-responsive" style="width:100%" alt="Submit" name="mlink">
   </div>
 </form>
@@ -150,10 +111,15 @@ $sql = mysqli_query($conn, "SELECT p.pid,p.pname, p.pdescription,m.mlink from Pr
 
 <br>
 
+
+
 <footer class="container-fluid text-center">
   <p>FastFunds Copyright</p>
   </form>
 </footer>
 
+
+
 </body>
 </html>
+

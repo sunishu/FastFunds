@@ -1,0 +1,127 @@
+<?php
+	include_once 'dbConnect.php';
+
+	SESSION_start();
+	$username = $_SESSION['username'];
+
+
+	if(isset($_GET['pid'])){
+	
+		$_SESSION['pid'] = $_GET['pid'];
+	}
+
+	$pid = $_SESSION['pid'];
+
+	$sql = mysqli_query($conn, "SELECT * from Projects natural join Multimedia where pid = '$pid'");
+	$result = mysqli_fetch_assoc($sql);
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>View Project!</title>
+</head>
+<body>
+
+<center>
+	<h2><b><font color=blue></font><?php echo .htmlspecialchars($result['pname']); ?></font></b></h2>
+	<h3><?php echo "Posted By:" .htmlspecialchars($result['username']); ?></h3>
+	<h3><?php echo "Current status:" .htmlspecialchars($result['status']); ?></h3>
+	<img src="<?php echo "$result['mlink']"; ?>">
+	<h6><?php echo "Minimum Funds needed:" .htmlspecialchars($result['minfunds']); ?></h6>
+	<h6><?php echo "Maximum Funds needed:" .htmlspecialchars($result['maxfunds']); ?></h6>
+	<h6><?php echo "Campaing posted on:" .htmlspecialchars($result['camp_post_date']); ?></h6>
+	<h6><?php echo "Campaing end date:" .htmlspecialchars($result['camp_end_date']); ?></h6>
+	<h6><?php echo "The project finishes on:" .htmlspecialchars($result['pro_end_date']); ?></h6>
+	<h6><?php echo "Tag for this project:" .htmlspecialchars($result['tag']); ?></h6>
+	<h6><?php .htmlspecialchars($result['likes']) "people like this."; ?></h6>
+
+	<br>
+	<br>
+	<form action = "" method="POST">
+	<label>"Enter the amount you wish to pledge:"</label>
+	<input type="number" name="amount" required>
+	<label>"Choose your credit card:"</label>
+	<?php
+			$sql = mysqli_query($conn, "SELECT ccn from CreditCard where username='$username'");
+			while($sql_array = mysqli_fetch_array($sql)){
+				$ccn = $sql_array['ccn'];
+
+	?>
+	<select name = "ccn" value = "$ccn"><?php echo "$ccn"; ?></select>
+	<?php 	}
+	?>
+			
+	<button type="submit" name="fund" value="fund">Fund!</button>
+
+	</form>
+
+	<?php
+
+		if(isset($_POST['fund'])){
+
+			$amount = $_POST['amount'];
+			$ccn = $_POST['ccn'];
+
+			$pledged = mysqli_query($conn, "INSERT into FundsPledged VALUES ('$username', '$pid', '$amount', '$ccn', 'now()')");
+
+			$sql = mysqli_query($conn, "SELECT funds from FundsRaised where pid = '$pid'");
+			$sql_array = mysqli_fetch_array($sql);
+			$totalFunds = $sql_array['funds'];
+
+			$totalFunds = $amount + $totalFunds;
+
+			$raised = mysqli_query($conn, "INSERT into FundsRaised VALUES ('$pid', '$totalFunds')");
+
+		}
+
+	?>
+
+</center>
+
+<h3>Comments:</h3>
+
+<?php
+	
+	$sql = mysqli_query($conn, "SELECT * from discussion where pid = '$pid' ");
+
+	$commentCount = mysqli_num_rows($sql);
+	if($commentCount = 0){
+
+?>		
+	<br><?php echo"No comments yet!"; }else{
+	
+		while ($sql_array = mysqli_fetch_array($sql)) {
+		
+?>
+		<br><?php echo "Posted by: " .htmlspecialchars($sql_array['$username']) "at" .htmlspecialchars($sql_array['tcomment']) ; ?>
+		<textarea rows = "5" cols="150"><?php echo .htmlspecialchars($sql_array['comment']); ?></textarea>
+
+<?php 
+		} 
+	}	
+?>
+	
+	<form action="" method="POST">
+	<br><br><label><b><font color=blue>YOUR COMMENT:</font></b></label>
+	<input type="text" name="comment" placeholder="Enter your comment here." required>
+	<button type="submit" name="postComment" value="comment">Post!</button>
+	</form>
+
+<?php
+	
+	if(isset($_POST['postComment'])){
+
+		$id_query = mysqli_query($conn, "SELECT uuid()");
+    	$id_array = mysqli_fetch_assoc($id_query);
+    	$id = $id_array['uuid()'];
+
+		$sql = mysqli_query($conn, "INSERT into discussion VALUES ('$id', '$username', '$pid', 'now()', '$_POST['comment']')");
+
+	}	
+
+?>
+
+</body>
+</html>

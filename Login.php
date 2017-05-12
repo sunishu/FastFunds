@@ -1,42 +1,36 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "final_project";
+include_once 'dbConnect.php';
 
-$conn = new mysqli($servername, $username, $password,$dbname);
-if($conn->connect_error){
-	die("Connection failed:".$conn->connect_error);
-}
 SESSION_start();
+$_SESSION["timeout"] = time();
 
-if(!empty($_POST['username'])){
-	$name = $_POST['username'];
-	$sql = mysqli_query($conn, "SELECT * FROM users where username = '$name'");
-	$result = mysqli_fetch_array($sql);
-	
-	if($result = $name){
-		$password = $_POST['password'];
-		$sql = mysqli_query($conn, "SELECT pwd FROM users where username = '$name'");
-		$result = mysqli_fetch_array($sql);
 
-		if($result = $password){
-			$_SESSION[username] = $name;
-			header("Location: action.php")
-
-		}else{
-			echo "incorrect password.";
-		}
-
-	}else{
-		echo "username incorrect."
-	}
-
-	
-}else{
-	echo "Please enter username.";
+if(empty($_POST['username']) || empty($_POST['password'])){
+	$error = "Both the fields are required.";
 }
 
-$conn->close();
+$username = mysqli_real_escape_string($conn, $_POST['username']);
+$password = mysqli_real_escape_string($conn, $_POST['password']);
+
+$sql = mysqli_query($conn, "SELECT username from users where username = '$username' and pwd = '$password'");
+$sql_array = mysqli_fetch_assoc($sql);
+$username = $sql_array['username'];
+
+$rowCount = mysqli_num_rows($sql);
+
+if($rowCount == 1){
+	$_SESSION['username'] = $username;
+
+	header("Location: action.php");
+}else{
+
+	echo "Incorrect username or password.";
+
+}
+
+
+if((time() - $_SESSION["timeout"]) > 100){ 
+    unset($_SESSION["timeout"]);
+}
 
 ?>

@@ -1,16 +1,19 @@
 <?php
-  include_once 'dbConnect.php';
-SESSION_start();
+	include_once 'dbConnect.php';
 
-$username=$_SESSION['username']; 
+	SESSION_start();
+
+	$username = $_SESSION['username'];
 
 
-  ?> 
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <title>Campaigns</title>
-  <meta charset="utf-8">
+	<title>Search Result</title>
+	<title>View Project!</title>
+	<meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -38,8 +41,7 @@ $username=$_SESSION['username'];
 
 <div class="jumbotron">
   <div class="container text-center">
-    <h1>FastFunds</h1>      
-    <p>Contribute to the awesome campaigns!</p>
+    <h1>FastFunds!</h1>     
   </div>
 </div>
 
@@ -59,48 +61,11 @@ $username=$_SESSION['username'];
         <li><a href="allUsers.php">Users</a></li>
         <li><a href="userProjects.php">Your Projects</a></li>
         <li><a href="rateProjects.php">Rate Projects</a></li>
-        <li><form action="tag.php" method="POST"><select name="tag">
-            <option>--Tags--</option>
-            <?php
-
-               $sql = mysqli_query($conn, "SELECT distinct tag from Projects");
-
-              while($query = mysqli_fetch_array($sql)){
-
-                $tag = $query['tag'];
-
-            ?>
-
-        <option value = "<?php echo "$tag"; ?>"><a href="tag.php"><?php echo "$tag";?> </a></option>
-        <?php    
-          }
-
-        ?>
-        </select>
-        <input type="submit" value="submit"/>
-
-        </form>
-
-
-
-        </li>
-<?php 
-        
-        if(isset($_POST['submit'])){
-
-          $tag = $_POST['tag'];
-          echo "$tag";
-          $_SESSION['tag'] = $tag;
-  
-
-
-        }
-
-?>
         <li><a href="recommendations.php">Your Recommendations</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-      <form action="search.php" method="POST">
+
+      	<form action="search.php" method="POST">
           <li><input type="text" name="search" id="search" placeholder="search" required><a href="search.php"><span class="glyphicon glyphicon-search"></span>Search</a></li>
         </form>
         <li>
@@ -111,27 +76,27 @@ $username=$_SESSION['username'];
 </nav>
 
 <?php
-$sql = mysqli_query($conn, "SELECT p.pid,p.pname, p.pdescription,m.mlink from Projects p Join multimedia m on p.pid =m.pid");
 
- while($query = mysqli_fetch_array($sql)){ ?> 
-<div class="container"> 
-  <div class="row"> 
-    <div class="col-sm-4">
-      <div class="panel panel-primary">
-      <?php
-
-      
-
-   
-
-        $pid = $query['pid'];
-        $pname = $query['pname'];
-        $pdescription = $query['pdescription'];
-        $mlink = $query['mlink'];
+	if(!empty($_POST['search'])){
 
 
-      ?>
-        <div class="panel-heading"><?php echo "$pname"; ?></div>
+		$search = mysqli_real_escape_string($conn, $_POST['search']);
+		$sql = mysqli_query($conn, "SELECT p.pid,p.pname, p.pdescription,m.mlink from Projects p natural Join multimedia m where pname LIKE '%$search%' OR pdescription LIKE '%$search%' OR tag LIKE '%$search%'");
+
+		$noResults = mysqli_num_rows($sql);
+
+		if($noResults>0){
+
+			while($query = mysqli_fetch_array($sql)){
+
+				$pid = $query['pid'];
+       			$pname = $query['pname'];
+        		$pdescription = $query['pdescription'];
+       			$mlink = $query['mlink'];
+
+				?>
+
+			<div class="panel-heading"><?php echo "$pname"; ?></div>
         <div class="panel-body">
 
 <form action="showProject.php" method='GET'>
@@ -144,16 +109,26 @@ $sql = mysqli_query($conn, "SELECT p.pid,p.pname, p.pdescription,m.mlink from Pr
   
       </div>
     </div>
-    <?php }  ?>
-  </div>
-</div>
 
-<br>
 
-<footer class="container-fluid text-center">
-  <p>FastFunds Copyright</p>
-  </form>
-</footer>
+<?php
+			}
+
+		}else{
+
+			echo "No matching results found!";
+
+		}
+
+
+
+	}
+
+
+?>
+
+</body>
+
 
 </body>
 </html>

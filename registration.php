@@ -1,20 +1,10 @@
 <?php
-	$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "final_project";
-
-$conn = new mysqli($servername, $username, $password,$dbname);
-if($conn->connect_error){
-	die("Connection failed:".$conn->connect_error);
-}
-SESSION_start();
-
+	include_once 'dbConnect.php';
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Registrtaion Successful!</title>
+	<title>Registration Successful!</title>
 </head>
 <body>
 
